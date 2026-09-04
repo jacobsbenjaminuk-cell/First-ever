@@ -108,6 +108,7 @@ const el = {
 };
 
 let state;
+let aiTimer = null;
 
 function emptyBoard() {
   return {
@@ -119,6 +120,7 @@ function emptyBoard() {
 function newState() {
   return {
     phase: "placing", // placing | playing | over
+    busy: false,
     horizontal: true,
     placeIndex: 0,
     player: emptyBoard(),
@@ -217,7 +219,7 @@ function render() {
         const shot = board.shots[r][c];
         if (shot === "miss") { cell.classList.add("miss"); cell.textContent = "\u00b7"; }
         if (shot === "hit") { cell.classList.add(isSunk(ship) ? "sunk" : "hit"); cell.textContent = "\u2715"; }
-        if (side === "enemy" && state.phase === "playing" && !shot) cell.classList.add("open");
+        if (side === "enemy" && state.phase === "playing" && !state.busy && !shot) cell.classList.add("open");
       }
     }
   }
@@ -283,7 +285,7 @@ function startGame() {
 function setStatus(msg) { el.status.textContent = msg; }
 
 function onEnemyClick(row, col) {
-  if (state.phase !== "playing") return;
+  if (state.phase !== "playing" || state.busy) return;
   if (state.enemy.shots[row][col]) return;
   const ship = shipAt(state.enemy, row, col);
   if (ship) {
@@ -294,12 +296,15 @@ function onEnemyClick(row, col) {
     state.enemy.shots[row][col] = "miss";
     setStatus("Miss.");
   }
-  render();
   if (allSunk(state.enemy)) { finish("You win! Enemy fleet destroyed."); return; }
-  setTimeout(aiTurn, 550);
+  state.busy = true;
+  render();
+  aiTimer = setTimeout(aiTurn, 550);
 }
 
 function aiTurn() {
+  aiTimer = null;
+  state.busy = false;
   if (state.phase !== "playing") return;
   const board = state.player;
   let target = null;
@@ -317,7 +322,7 @@ function aiTurn() {
       for (let c = 0; c < SIZE; c++)
         if (!board.shots[r][c]) fallback.push({ row: r, col: c });
     const pool = open.length ? open : fallback;
-    if (!pool.length) return;
+    if (!pool.length) { render(); return; }
     target = pool[Math.floor(Math.random() * pool.length)];
   }
 
@@ -347,11 +352,13 @@ function aiTurn() {
 
 function finish(msg) {
   state.phase = "over";
+  state.busy = false;
   setStatus(msg);
   render();
 }
 
 function reset() {
+  if (aiTimer !== null) { clearTimeout(aiTimer); aiTimer = null; }
   state = newState();
   buildGrid(el.player, "player");
   buildGrid(el.enemy, "enemy");
@@ -375,6 +382,7 @@ el.enemy.addEventListener("click", e => {
 });
 
 function toggleRotate() {
+  if (state.phase !== "placing") return;
   state.horizontal = !state.horizontal;
   setStatus(`Orientation: ${state.horizontal ? "horizontal" : "vertical"}.`);
 }
