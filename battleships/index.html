@@ -468,7 +468,8 @@ function render() {
 function renderStats() {
   const line = board => {
     if (!board.fired) return "no shots fired";
-    return `${board.fired} shots \u00b7 ${board.hits} hits (${Math.round((board.hits / board.fired) * 100)}%)`;
+    const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+    return `${plural(board.fired, "shot")} \u00b7 ${plural(board.hits, "hit")} (${Math.round((board.hits / board.fired) * 100)}%)`;
   };
   // Shots recorded on a board were fired at it by the other side.
   el.playerStats.textContent = `Enemy: ${line(state.player)}`;
