@@ -64,6 +64,16 @@ describe('firing', () => {
     expect(repeat.message).toBe('E5 has already been fired at.');
   });
 
+  it('rejects a non-integer or off-board target without using the turn', () => {
+    const state = startedGame();
+    for (const at of [{ row: 1.5, col: 2 }, { row: Number.NaN, col: 0 }, { row: 10, col: 0 }]) {
+      const rejected = gameReducer(state, { type: 'fire', by: 'player', at });
+      expect(rejected.message).toBe('That cell is off the board.');
+      expect(rejected.turn).toBe('player');
+      expect(rejected.player.shots).toHaveLength(0);
+    }
+  });
+
   it('rejects a shot taken out of turn', () => {
     const state = gameReducer(startedGame(), { type: 'fire', by: 'opponent', at: { row: 0, col: 0 } });
     expect(state.message).toBe('Not your turn.');

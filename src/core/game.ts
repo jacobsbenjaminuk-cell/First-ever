@@ -10,7 +10,7 @@ import {
   resolveShot,
   type RandomSource,
 } from './board';
-import { formatCoordinate } from './coordinates';
+import { formatCoordinate, isOnBoard } from './coordinates';
 import {
   BOARD_SIZE,
   type Coordinate,
@@ -127,7 +127,7 @@ function applyShot(state: GameState, by: Side, at: Coordinate): GameState {
   const defending: Side = by === 'player' ? 'opponent' : 'player';
   const defender = state[defending];
 
-  if (at.row < 0 || at.col < 0 || at.row >= BOARD_SIZE || at.col >= BOARD_SIZE) {
+  if (!isOnBoard(at)) {
     return { ...state, message: 'That cell is off the board.' };
   }
   // A repeat shot is rejected outright: no board change and no turn change.

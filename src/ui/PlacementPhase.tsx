@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FLEET,
   placeShip,
@@ -27,9 +27,12 @@ export function PlacementPhase({ state, dispatch }: PlacementPhaseProps) {
   const [dragOrigin, setDragOrigin] = useState<Coordinate | null>(null);
 
   const nextUnplaced = FLEET.find((ship) => !placed.has(ship.id))?.id;
+  const previouslyPlaced = useRef(placed);
 
   useEffect(() => {
-    if (placed.has(selected) && nextUnplaced) setSelected(nextUnplaced);
+    const justPlaced = !previouslyPlaced.current.has(selected) && placed.has(selected);
+    previouslyPlaced.current = placed;
+    if (justPlaced && nextUnplaced) setSelected(nextUnplaced);
   }, [placed, selected, nextUnplaced]);
 
   useEffect(() => {
