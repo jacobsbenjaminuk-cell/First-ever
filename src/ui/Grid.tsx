@@ -94,7 +94,7 @@ function Row({ row, marks, interactive, onCellDown, onCellUp, onCellEnter }: Row
             onPointerDown={() => onCellDown?.(coord)}
             onPointerUp={() => onCellUp?.(coord)}
             onPointerEnter={() => onCellEnter?.(coord)}
-            className={`aspect-square w-full min-w-7 rounded-none text-xs transition-colors duration-[120ms] ease-out ${
+            className={`aspect-square w-full min-w-6 rounded-none sm:min-w-7 text-xs transition-colors duration-[120ms] ease-out ${
               MARK_CLASS[mark]
             } ${
               interactive

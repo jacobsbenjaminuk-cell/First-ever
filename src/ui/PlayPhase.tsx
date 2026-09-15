@@ -36,26 +36,28 @@ export function PlayPhase({ state, dispatch }: PlayPhaseProps) {
 function StatusBar({ state }: { readonly state: GameState }) {
   const yourTurn = state.turn === 'player';
   return (
-    <div className="flex flex-col gap-2 bg-panel px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <span className="text-xs tracking-[0.2em] uppercase">
-        {state.phase === 'gameover' ? 'Battle over' : yourTurn ? 'Your turn' : 'Enemy turn'}
-      </span>
-      <span className="flex gap-6 text-xs text-muted">
+    <div className="flex flex-col gap-3 bg-panel px-4 py-3">
+      <div className="flex items-baseline justify-between gap-4">
+        <span className="shrink-0 text-xs tracking-[0.2em] uppercase">
+          {state.phase === 'gameover' ? 'Battle over' : yourTurn ? 'Your turn' : 'Enemy turn'}
+        </span>
+        <span className="min-h-4 truncate text-xs text-miss-mark">{state.message}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-muted sm:grid-cols-4">
         <Counter label="Your shots" value={state.player.shots.length} />
         <Counter label="Enemy shots" value={state.opponent.shots.length} />
         <Counter label="Your hits" value={countHits(state, 'player')} />
         <Counter label="Enemy hits" value={countHits(state, 'opponent')} />
-      </span>
-      <span className="min-h-4 text-xs text-miss-mark">{state.message}</span>
+      </div>
     </div>
   );
 }
 
 function Counter({ label, value }: { readonly label: string; readonly value: number }) {
   return (
-    <span className="flex gap-2">
-      <span>{label}</span>
-      <span className="w-6 text-right text-ink tabular-nums">{String(value).padStart(2, '0')}</span>
+    <span className="flex items-baseline justify-between gap-2">
+      <span className="truncate">{label}</span>
+      <span className="w-6 shrink-0 text-right text-ink tabular-nums">{String(value).padStart(2, '0')}</span>
     </span>
   );
 }
